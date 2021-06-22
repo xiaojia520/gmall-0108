@@ -3,7 +3,8 @@
 *.iml
 target/
 *.class
-
+.mvn/
+mvnw*
 # Log file
 *.log
 
