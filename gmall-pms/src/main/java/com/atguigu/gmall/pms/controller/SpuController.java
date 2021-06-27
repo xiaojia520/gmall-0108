@@ -68,6 +68,9 @@ public class SpuController {
 		SpuEntity spu = spuService.getById(id);
 
         return ResponseVo.ok(spu);
+
+
+
     }
 
     /**
