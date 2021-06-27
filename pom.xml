@@ -16,10 +16,11 @@
     <description>谷粒商城</description>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>gmall-admin</module>
-        <module>gmall-common</module>
-    </modules>
+<!--    <modules>-->
+<!--        <module>gmall-admin</module>-->
+<!--        <module>gmall-common</module>-->
+<!--        <module>gmall-sms-interface</module>-->
+<!--    </modules>-->
 
     <properties>
         <spring-cloud.version>Hoxton.SR2</spring-cloud.version>

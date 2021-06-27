@@ -2,6 +2,7 @@ package com.atguigu.gmall.pms.controller;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,25 @@ public class AttrController {
     @Autowired
     private AttrService attrService;
 
+    ///pms/attr/category/{cid}?type=0&searchType=1
+    @GetMapping("category/{cid}")
+    public ResponseVo<List<AttrEntity>> queryAttrsByCidOrTypeOrSearchType(
+            @PathVariable("cid") Long cid,
+            @RequestParam(value="type",required = false) Integer type,//这里不是必须的参数；所以需要设置默认值或者required=false
+            @RequestParam(value="searchType",required = false) Integer searcherType//一般是设置默认值，但是默认值是根据参数类型决定的
+            //这里的默认值0是有特殊含义的所以只能用required=false
+    ){
+       List<AttrEntity> atttrEntities= this.attrService.queryAttrsByCidOrTypeOrSearchType(cid,type,searcherType);
+       return ResponseVo.ok(atttrEntities);
+    }
+
+
+    ///pms/attr/group/{gid}
+    @GetMapping("group/{gid}")
+    public ResponseVo<List<AttrEntity>> queryAttrsByGid(@PathVariable("gid") Long gid){
+        List<AttrEntity> attrEntities = this.attrService.list(new QueryWrapper<AttrEntity>().eq("group_id", gid));
+        return ResponseVo.ok(attrEntities);
+    }
     /**
      * 列表
      */
