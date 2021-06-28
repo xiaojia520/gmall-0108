@@ -2,6 +2,7 @@ package com.atguigu.gmall.pms.controller;
 
 import java.util.List;
 
+import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.pms.vo.SpuVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,7 +20,6 @@ import com.atguigu.gmall.pms.entity.SpuEntity;
 import com.atguigu.gmall.pms.service.SpuService;
 import com.atguigu.gmall.common.bean.PageResultVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
-import com.atguigu.gmall.common.bean.PageParamVo;
 
 /**
  * spu信息
@@ -39,7 +39,7 @@ public class SpuController {
     //根据分类id来查询分页列表
     @GetMapping("category/{categoryId}")
     @ApiOperation("根据检索条件分页查询")
-    public ResponseVo<PageResultVo> querySpuByCidAndPage(PageParamVo paramVo,@PathVariable("categoryId") Long categoryId){
+    public ResponseVo<PageResultVo> querySpuByCidAndPage(PageParamVo paramVo, @PathVariable("categoryId") Long categoryId){
 
         PageResultVo pageResultVo = spuService.querySpuByCidAndPage(paramVo,categoryId);
 

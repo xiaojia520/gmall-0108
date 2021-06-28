@@ -53,7 +53,7 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
     SkuImagesService skuImagesService;
     @Resource
     SkuAttrValueService skuAttrValueService;
-    @Resource
+    //@Resource
 //    GmallSmsClient gmallSmsClient;
 
     @Override
@@ -104,6 +104,7 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
         Long spuId = spu.getId();
         //1-2 保存pms_spu_desc
         List<String> spuImages = spu.getSpuImages();
+        System.out.println(spuImages);
         //首先判断是否为空 不为空才有继续的意义
         if (!CollectionUtils.isEmpty(spuImages)) {
             SpuDescEntity spuDescEntity = new SpuDescEntity();
@@ -142,10 +143,11 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
             skuVo.setSpuId(spuId);
             //获取页面的图片列表
             List<String> images = skuVo.getImages();
+            System.out.println("images:"+images);
             //判断是否为空集合，不为空则设置第一张图片为默认图片
             if (!CollectionUtils.isEmpty(images)) {
                 //取第一张图片为默认图片;这里老司机会先进行一个判断，是否存在默认图片，如果没有则设置第一张为默认图片，否则默认图为默认
-                skuVo.setDefaultImage(StringUtils.isNotBlank(skuVo.getDefaultImage()) ? images.get(0) : skuVo.getDefaultImage());
+                skuVo.setDefaultImage(StringUtils.isBlank(skuVo.getDefaultImage()) ? images.get(0) : skuVo.getDefaultImage());
             }
             //保存内容
             this.skuMapper.insert(skuVo);//我们需要保存的是skuVo 到数据库，所以获取了skus了我们直接有实体类skuEntity
@@ -183,170 +185,3 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
         });
     }
 }
-
-
-
-
-
-
-
-
-
-//@Service("spuService")
-//public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements SpuService {
-//
-//    @Autowired
-//    private SpuDescService descService;
-//
-//    @Autowired
-//    private SpuAttrValueService spuAttrValueService;
-//
-//    @Autowired
-//    private SkuMapper skuMapper;
-//
-//    @Autowired
-//    private SkuImagesService skuImagesService;
-//
-//    @Autowired
-//    private SkuAttrValueService skuAttrValueService;
-//
-////    @Autowired
-////    private GmallSmsClient smsClient;
-//
-//    @Override
-//    public PageResultVo queryPage(PageParamVo paramVo) {
-//        IPage<SpuEntity> page = this.page(
-//                paramVo.getPage(),
-//                new QueryWrapper<SpuEntity>()
-//        );
-//
-//        return new PageResultVo(page);
-//    }
-//
-//    @Override
-//    public PageResultVo querySpuByCidAndPage(PageParamVo paramVo, Long categoryId) {
-//
-//        QueryWrapper<SpuEntity> wrapper = new QueryWrapper<>();
-//
-//        // 如果categoryId不为0，需要查本类
-//        if (categoryId != 0) {
-//            wrapper.eq("category_id", categoryId);
-//        }
-//
-//        // 关键字
-//        String key = paramVo.getKey();
-//        if (org.apache.commons.lang3.StringUtils.isNotBlank(key)) {
-//            // wrapper后面直接写条件，条件之间默认是and关系，并且都没有括号
-//            wrapper.and(t -> t.eq("id", key).or().like("name", key));
-//        }
-//
-//        IPage<SpuEntity> page = this.page(
-//                paramVo.getPage(),
-//                wrapper
-//        );
-//
-//        return new PageResultVo(page);
-//    }
-//
-//    @Transactional
-//    @Override
-//    public void bigSave(SpuVo spu) throws Exception {
-//
-//        // 1.保存spu相关的3张表
-//        // 1.1. 保存pms_spu
-//        Long spuId = saveSpuInfo(spu); // 回滚，新增失败
-//
-//        // 1.2. 保存pms_spu_desc
-//        //this.saveSpuDesc(spu, spuId);  // 不会回滚，新增成功
-//        this.descService.saveSpuDesc(spu, spuId);
-//
-////        try {
-////            //int i = 1/0; // 不受检异常，运行时异常
-////            //new FileInputStream("xxx"); // 受检异常，编译时异常
-////            TimeUnit.SECONDS.sleep(4);
-////        } catch (InterruptedException e) {
-////            e.printStackTrace();
-////        }
-//
-//        // 1.3. 保存pms_spu_attr_value
-//        saveBaseAttrs(spu, spuId);
-//
-//
-//        // 2.保存sku相关的3张表
-//        saveSkuInfo(spu, spuId);
-//
-//        //   int i = 1/0;
-//    }
-//
-//    private void saveSkuInfo(SpuVo spu, Long spuId) {
-//        List<SkuVo> skus = spu.getSkus();
-//        if (CollectionUtils.isEmpty(skus)) {
-//            return;
-//        }
-//        // 遍历sku，保存到pms_sku
-//        skus.forEach(skuVo -> {
-//            // 2.1. 保存pms_sku
-//            skuVo.setSpuId(spuId);
-//            skuVo.setCategoryId(spu.getCategoryId());
-//            skuVo.setBrandId(spu.getBrandId());
-//            // 获取页面的图片列表
-//            List<String> images = skuVo.getImages();
-//            if (!CollectionUtils.isEmpty(images)) {
-//                // 取第一张图片作为默认图片
-//                skuVo.setDefaultImage(org.apache.commons.lang3.StringUtils.isBlank(skuVo.getDefaultImage()) ? images.get(0) : skuVo.getDefaultImage());
-//            }
-//            this.skuMapper.insert(skuVo);
-//            Long skuId = skuVo.getId();
-//
-//            // 2.2. 保存pms_sku_images
-//            if (!CollectionUtils.isEmpty(images)) {
-//                this.skuImagesService.saveBatch(images.stream().map(image -> {
-//                    SkuImagesEntity skuImagesEntity = new SkuImagesEntity();
-//                    skuImagesEntity.setSkuId(skuId);
-//                    skuImagesEntity.setUrl(image);
-//                    // 如果当前图片的地址和sku的默认图片地址相同，则设置为1，否则设置为0
-//                    skuImagesEntity.setDefaultStatus(StringUtils.equals(skuVo.getDefaultImage(), image) ? 1 : 0);
-//                    return skuImagesEntity;
-//                }).collect(Collectors.toList()));
-//            }
-//
-//            // 2.3. 保存pms_sku_attr_value
-//            List<SkuAttrValueEntity> saleAttrs = skuVo.getSaleAttrs();
-//            if (!CollectionUtils.isEmpty(saleAttrs)) {
-//                saleAttrs.forEach(skuAttrValueEntity -> {
-//                    skuAttrValueEntity.setSkuId(skuId);
-//                });
-//                this.skuAttrValueService.saveBatch(saleAttrs);
-//            }
-//
-//            // 3.保存营销信息相关的3张表
-////            SkuSaleVo skuSaleVo = new SkuSaleVo();
-////            BeanUtils.copyProperties(skuVo, skuSaleVo);
-////            skuSaleVo.setSkuId(skuId);
-////            this.smsClient.saleSales(skuSaleVo);
-//        });
-//    }
-//
-//    private void saveBaseAttrs(SpuVo spu, Long spuId) {
-//        List<SpuAttrValueVo> baseAttrs = spu.getBaseAttrs();
-//        if (!CollectionUtils.isEmpty(baseAttrs)) {
-//            // 把SpuAttrValueVo集合转化成SpuAttrValueEntity集合
-//            List<SpuAttrValueEntity> spuAttrValueEntities = baseAttrs.stream()
-//                    .filter(spuAttrValueVo -> spuAttrValueVo.getAttrValue() != null)
-//                    .map(spuAttrValueVo -> {
-//                        SpuAttrValueEntity spuAttrValueEntity = new SpuAttrValueEntity();
-//                        BeanUtils.copyProperties(spuAttrValueVo, spuAttrValueEntity);
-//                        spuAttrValueEntity.setSpuId(spuId);
-//                        return spuAttrValueEntity;
-//                    }).collect(Collectors.toList());
-//            this.spuAttrValueService.saveBatch(spuAttrValueEntities);
-//        }
-//    }
-//
-//    private Long saveSpuInfo(SpuVo spu) {
-//        spu.setCreateTime(new Date());
-//        spu.setUpdateTime(spu.getCreateTime());
-//        this.save(spu);
-//        return spu.getId();
-//    }
-//}

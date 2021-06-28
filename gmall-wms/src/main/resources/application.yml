@@ -34,7 +34,8 @@ feign:
 mybatis-plus:
   mapper-locations: classpath:mapper/wms/**/*.xml
   global-config:
-    id-type: auto
+    db-config:
+      id-type: auto
   type-aliases-package: com.atguigu.gmall.wms.entity
 logging:
   level:

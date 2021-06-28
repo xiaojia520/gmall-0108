@@ -33,7 +33,8 @@ feign:
 mybatis-plus:
   mapper-locations: classpath:mapper/pms/**/*.xml
   global-config:
-    id-type: auto
+    db-config:
+      id-type: auto
   type-aliases-package: com.atguigu.gmall.pms.entity
 logging:
   level:
