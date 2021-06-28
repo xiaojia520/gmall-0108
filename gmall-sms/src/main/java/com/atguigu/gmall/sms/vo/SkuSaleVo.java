@@ -23,8 +23,4 @@ public class SkuSaleVo {
     private BigDecimal fullPrice;
     private BigDecimal reducePrice;
     private Integer fullAddOther;//改成json数据一致
-
-
-
-
 }

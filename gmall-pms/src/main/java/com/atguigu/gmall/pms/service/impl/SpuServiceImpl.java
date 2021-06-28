@@ -3,15 +3,13 @@ package com.atguigu.gmall.pms.service.impl;
 import com.alibaba.nacos.client.utils.StringUtils;
 import com.atguigu.gmall.pms.entity.*;
 //import com.atguigu.gmall.pms.feign.GmallSmsClient;
+import com.atguigu.gmall.pms.feign.GmallSmsClient;
 import com.atguigu.gmall.pms.mapper.*;
 import com.atguigu.gmall.pms.service.*;
 import com.atguigu.gmall.pms.vo.SkuSaleVo;
 import com.atguigu.gmall.pms.vo.SkuVo;
 import com.atguigu.gmall.pms.vo.SpuAttrValueVo;
 import com.atguigu.gmall.pms.vo.SpuVo;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 
 import org.springframework.beans.BeanUtils;
@@ -44,6 +42,8 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
     @Resource
     SpuDescMapper spuDescMapper;
     @Resource
+    SpuDescService spuDescService;
+    @Resource
     SpuMapper spuMapper;
     @Resource
     SpuAttrValueMapper spuAttrValueMapper;
@@ -53,8 +53,8 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
     SkuImagesService skuImagesService;
     @Resource
     SkuAttrValueService skuAttrValueService;
-    //@Resource
-//    GmallSmsClient gmallSmsClient;
+    @Resource
+    GmallSmsClient gmallSmsClient;
 
     @Override
     public PageResultVo queryPage(PageParamVo paramVo) {
@@ -98,10 +98,11 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
         //这里面缺少了两个参数 主要是两个系统时间没有所以需要设置机智的做法
         spu.setCreateTime(new Date());
         spu.setUpdateTime(spu.getCreateTime());
-        this.spuMapper.insert(spu);
+        // this.spuMapper.insert(spu);
         this.save(spu);//这个就是默认的单表操作由Iservice提供的
         //获取spuId 以供后面使用
         Long spuId = spu.getId();
+
         //1-2 保存pms_spu_desc
         List<String> spuImages = spu.getSpuImages();
         System.out.println(spuImages);
@@ -111,7 +112,9 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
             spuDescEntity.setSpuId(spuId);
             spuDescEntity.setDecript(StringUtils.join(spuImages, ","));
             this.spuDescMapper.insert(spuDescEntity);
+            // this.spuDescService.save(spuDescEntity);//service方法是批量保存的
         }
+
         //1-3 保存pms_attr_value
         List<SpuAttrValueVo> baseAttrs = spu.getBaseAttrs();
         //判断是否 为空
@@ -139,12 +142,12 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
         //遍历skus设置对应属性值，每一个skus都是保存对应的数据 已经是单个的了！！！！！
         skus.forEach(skuVo -> {
             skuVo.setBrandId(spu.getBrandId());
-            System.out.println(spu.getBrandId());
+
             skuVo.setCategoryId(spu.getCategoryId());
             skuVo.setSpuId(spuId);
             //获取页面的图片列表
             List<String> images = skuVo.getImages();
-            System.out.println("images:"+images);
+            System.out.println("images:" + images);
             //判断是否为空集合，不为空则设置第一张图片为默认图片
             if (!CollectionUtils.isEmpty(images)) {
                 //取第一张图片为默认图片;这里老司机会先进行一个判断，是否存在默认图片，如果没有则设置第一张为默认图片，否则默认图为默认
@@ -176,13 +179,14 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
                 saleAttrs.forEach(skuAttrValueEntity -> {
                     skuAttrValueEntity.setSkuId(skuId);//每个设置个skuId 就好了
                 });
+                this.skuAttrValueService.saveBatch(saleAttrs);//每一个skus都要保存一个skuAttrValue的集合;无需map方法 因为我们无需转换集合类型 只要每一个多加一个skuId即可
             }
-            this.skuAttrValueService.saveBatch(saleAttrs);//每一个skus都要保存一个skuAttrValue的集合;无需map方法 因为我们无需转换集合类型 只要每一个多加一个skuId即可
             //保存单3张表销售表啦！！！
             //因为是别的库，所以需要远程调用；使用fegin 先注入这个接口GmallSmsClient
-//            SkuSaleVo skuSaleVo = new SkuSaleVo();
-//            skuSaleVo.setSkuId(skuId);
-//            this.gmallSmsClient.saleSales(skuSaleVo);
+            SkuSaleVo skuSaleVo = new SkuSaleVo();
+            BeanUtils.copyProperties(skuVo,skuSaleVo);
+            skuSaleVo.setSkuId(skuId);
+            this.gmallSmsClient.saleSales(skuSaleVo);
         });
     }
 }

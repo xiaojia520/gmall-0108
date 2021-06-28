@@ -34,12 +34,12 @@ public class SkuBoundsController {
     @Autowired
     private SkuBoundsService skuBoundsService;
 
-//    //把三个方法写在一个接口里
-//    @PostMapping("sales/save")
-//    public ResponseVo saleSales(@RequestBody SkuSaleVo saleVo){
-//        this.skuBoundsService.saveSales(saleVo);
-//        return ResponseVo.ok();
-//    }
+    //把三个方法写在一个接口里
+    @PostMapping("sales/save")
+    public ResponseVo saleSales(@RequestBody SkuSaleVo saleVo){
+        this.skuBoundsService.saveSales(saleVo);
+        return ResponseVo.ok();
+    }
 
 
     /**
