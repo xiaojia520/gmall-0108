@@ -139,6 +139,7 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
         //遍历skus设置对应属性值，每一个skus都是保存对应的数据 已经是单个的了！！！！！
         skus.forEach(skuVo -> {
             skuVo.setBrandId(spu.getBrandId());
+            System.out.println(spu.getBrandId());
             skuVo.setCategoryId(spu.getCategoryId());
             skuVo.setSpuId(spuId);
             //获取页面的图片列表
